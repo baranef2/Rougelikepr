@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem; 
 using Unity.Cinemachine;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
+
 using System;
 using System.Collections;
 
@@ -47,12 +47,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform firePoint;
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private float baseBulletDamage = 10f;
-
+    [SerializeField] private float attackCoolDown = 1f;
+    private float _nextFireTime = 0f;
     public event Action OnPlayerAttack;
     #endregion
 
     #region Jumping
     [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float fallGravityMultiplier = 2.5f;
     [SerializeField] private float jumpHeight = 1.6f;   
     [SerializeField] private float coyoteTime = 0.12f;  
     [SerializeField] private float jumpBuffer = 0.12f;  
@@ -282,6 +284,8 @@ public class PlayerController : MonoBehaviour
     }
     private void OnFire(InputAction.CallbackContext ctx)
     {
+        if (Time.time < _nextFireTime) return;
+        
         if (_state != HandState.Weapon) return;
 
         if (bulletPrefab == null || firePoint == null) return;
@@ -304,7 +308,7 @@ public class PlayerController : MonoBehaviour
             }
 
             OnPlayerAttack?.Invoke();
-
+            _nextFireTime = Time.time + attackCoolDown;
         }
     }
 
@@ -339,7 +343,21 @@ public class PlayerController : MonoBehaviour
             _airJumpCount = 0;
             if (_verticalVelocity < 0f) _verticalVelocity = -2f;
         }
-        _verticalVelocity += gravity * Time.deltaTime;
+        
+        // ESKİ HALİ: _verticalVelocity += gravity * Time.deltaTime;
+
+        
+        if (_verticalVelocity < 0) 
+        {
+            
+            _verticalVelocity += gravity * fallGravityMultiplier * Time.deltaTime;
+        }
+        else 
+        {
+            
+            _verticalVelocity += gravity * Time.deltaTime;
+        }
+        
     }
 
     private void TryConsumeJumpBuffer()
