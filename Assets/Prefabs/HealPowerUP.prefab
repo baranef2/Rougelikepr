@@ -81,7 +81,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PowerupPickup
   type: 0
-  amount: 1
+  amount: 5
   duration: 0
   playerTag: Player
   pickupVFX: {fileID: 844113144062071549, guid: b25ac9f6268c5a942be11dfb1b6a62dd, type: 3}

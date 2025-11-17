@@ -76,6 +76,9 @@ PrefabInstance:
       addedObject: {fileID: 2945477163767125695}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86f68739108c7d64d897b950ffbc8771, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 2000466366291740378}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86f68739108c7d64d897b950ffbc8771, type: 3}
+      insertIndex: -1
       addedObject: {fileID: -7985260428150320908}
   m_SourcePrefab: {fileID: 100100000, guid: 86f68739108c7d64d897b950ffbc8771, type: 3}
 --- !u!1 &7972824712177645542 stripped
@@ -112,6 +115,20 @@ MonoBehaviour:
   damageAmount: 5
   damageCooldown: 0.8
   targetTag: Player
+--- !u!114 &2000466366291740378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7972824712177645542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a242103c4d417a344b35a72befc59a1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PatrolTrap
+  waypoints: []
+  moveSpeed: 5
 --- !u!136 &-7985260428150320908
 CapsuleCollider:
   m_ObjectHideFlags: 0

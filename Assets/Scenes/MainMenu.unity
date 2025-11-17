@@ -3014,7 +3014,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &241446320
 GameObject:
   m_ObjectHideFlags: 0
@@ -3369,7 +3369,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!114 &311529041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4300,7 +4300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &396422186
 GameObject:
   m_ObjectHideFlags: 0
@@ -7331,7 +7331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &776610952
 GameObject:
   m_ObjectHideFlags: 0
@@ -8351,7 +8351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &971076911
 GameObject:
   m_ObjectHideFlags: 0
@@ -10410,7 +10410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &1290603254
 GameObject:
   m_ObjectHideFlags: 0
@@ -12227,7 +12227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &1464780398
 GameObject:
   m_ObjectHideFlags: 0
@@ -13028,7 +13028,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &1498314070
 GameObject:
   m_ObjectHideFlags: 0
@@ -14675,7 +14675,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &1698930723
 GameObject:
   m_ObjectHideFlags: 0
@@ -14908,7 +14908,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &1716331661
 GameObject:
   m_ObjectHideFlags: 0
@@ -17011,7 +17011,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1 &1983336979
 GameObject:
   m_ObjectHideFlags: 0
@@ -18546,7 +18546,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e76b1573c2db00d47ae5365794dc549f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonClickSound
-  customClip: {fileID: 0}
+  customClip: {fileID: 8300000, guid: 636a7d323eb49d44180d2a495bc38086, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

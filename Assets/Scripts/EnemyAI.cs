@@ -11,23 +11,25 @@ public struct LootDrop
 
 
 [RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(Health))] // Can sistemi de zorunlu
+[RequireComponent(typeof(Health))] 
 [RequireComponent(typeof(Animator))]
 public class EnemyAI : MonoBehaviour
 {
     [Header("Referanslar")]
     private NavMeshAgent _agent;
     private Transform _player;
-    private Health _playerHealth; // Oyuncunun can sistemi
+    private Health _playerHealth; 
     private Animator _animator;
     private Health _health;
 
     [Header("AI Ayarlarý")]
-    [SerializeField] private float detectionRange = 15f; // Oyuncuyu fark etme mesafesi
-    [SerializeField] private float attackRange = 2f;    // Saldýrý mesafesi
-    [SerializeField] private float attackDamage = 10f;  // Vereceði hasar
-    [SerializeField] private float attackCooldown = 1.5f; // Saniyede kaç kez vurabileceði
+    [SerializeField] private float detectionRange = 15f; 
+    [SerializeField] private float attackRange = 2f;    
+    [SerializeField] private float attackDamage = 10f;  
+    [SerializeField] private float attackCooldown = 1.5f; 
+    [SerializeField] private float attackPreparationTime = 0.3f;
     [SerializeField] private GameObject enemyDeathVFX;
+
     private float _lastAttackTime = -999f;
     private int _animIDSpeed;
     [SerializeField] private LootDrop[] lootTable;
@@ -84,6 +86,11 @@ public class EnemyAI : MonoBehaviour
         // --- Durum Geçiþleri ---
         if (distanceToPlayer <= attackRange)
         {
+            if (_mevcutDurum != DüþmanDurumu.Saldýrý)
+            {
+               
+                _lastAttackTime = Time.time - attackCooldown + attackPreparationTime;
+            }
             _mevcutDurum = DüþmanDurumu.Saldýrý;
         }
         else if (distanceToPlayer <= detectionRange)
@@ -148,8 +155,8 @@ public class EnemyAI : MonoBehaviour
 
     private void PerformAttack()
     {
-        // (Opsiyonel) Saldýrý animasyonunu tetikle
-        // _animator.SetTrigger("Attack");
+        
+         _animator.SetTrigger("Attack");
 
         Debug.Log("Düþman saldýrdý!");
 
@@ -167,7 +174,8 @@ public class EnemyAI : MonoBehaviour
 
         if (enemyDeathVFX != null)
         {
-            Instantiate(enemyDeathVFX, transform.position, Quaternion.identity); 
+            GameObject vfx = Instantiate(enemyDeathVFX, transform.position, Quaternion.identity);
+            Destroy(vfx, 2.2f);
         }
 
         _animator.SetTrigger("Death");
@@ -177,7 +185,7 @@ public class EnemyAI : MonoBehaviour
         {
             GetComponent<Collider>().enabled = false;
         }
-        Destroy(gameObject, 2f);
+        Destroy(gameObject, 2.9f);
     }
 
     private void TryDropLoot()

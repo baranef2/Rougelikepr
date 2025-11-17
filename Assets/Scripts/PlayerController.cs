@@ -4,7 +4,7 @@ using Unity.Cinemachine;
 
 using System;
 using System.Collections;
-
+using UnityEngine.SceneManagement;
 public enum PowerupType
 {
     Health,
@@ -59,6 +59,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float coyoteTime = 0.12f;  
     [SerializeField] private float jumpBuffer = 0.12f;  
     [SerializeField] private int maxAirJumps = 0;
+    [SerializeField] private float jumpCooldown = 1f; 
+    private float _lastJumpPerformTime = -999f;
     [SerializeField] private GameObject jumpSmokeVFX;
     public event Action OnPlayerJump;
     
@@ -363,6 +365,14 @@ public class PlayerController : MonoBehaviour
     private void TryConsumeJumpBuffer()
     {
         if (_isStunned) return;
+
+        
+        if (Time.time < _lastJumpPerformTime + jumpCooldown)
+        {
+            return;
+        }
+        
+
         bool canGroundJump = (Time.time - _lastGroundedTime) <= coyoteTime;
         bool bufferedPress = (Time.time - _lastJumpPressed) <= jumpBuffer;
         bool canAirJump = (!canGroundJump && _airJumpCount < maxAirJumps);
@@ -386,6 +396,7 @@ public class PlayerController : MonoBehaviour
 
         if ((Time.time - _lastGroundedTime) > coyoteTime)
             _airJumpCount++;
+        _lastJumpPerformTime = Time.time;
     }
 
 
@@ -567,9 +578,10 @@ public class PlayerController : MonoBehaviour
 
         
 
-        Debug.Log("Oyuncu Öldü!");
+        Debug.Log("Oyuncu Öldü! Sahne yeniden başlatılıyor...");
 
-        
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        SceneManager.LoadScene(currentSceneName);
 
         // TODO:
         // Burası "Game Over" ekranını 2-3 saniye sonra tetikleyeceğin yer.

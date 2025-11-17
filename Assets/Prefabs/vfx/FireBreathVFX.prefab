@@ -139,6 +139,9 @@ GameObject:
   - component: {fileID: 5801243569854239163}
   - component: {fileID: 5409874824235484080}
   - component: {fileID: 2910229973991070080}
+  - component: {fileID: 3152403201644683386}
+  - component: {fileID: 7179945072917511224}
+  - component: {fileID: 6259516681888197519}
   m_Layer: 0
   m_Name: FireBreathVFX
   m_TagString: Untagged
@@ -172,14 +175,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1873704272931963826}
   serializedVersion: 8
-  lengthInSec: 1
+  lengthInSec: 1.5
   simulationSpeed: 1
-  stopAction: 0
+  stopAction: 1
   cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -4953,6 +4956,55 @@ MonoBehaviour:
     perlinColor: 0
     perlinColorSpeed: 0
   fadeOutReference: {fileID: 5801243569854239163}
+--- !u!114 &3152403201644683386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873704272931963826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d74b8dc9c653573489bfb45080c551b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrapDamage
+  damageAmount: 5
+  damageCooldown: 0.8
+  targetTag: Player
+--- !u!114 &7179945072917511224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873704272931963826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bce39aafc9893864e87a6ba16612b1e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VFXDamageTimer
+  damageDuration: 1.5
+--- !u!65 &6259516681888197519
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873704272931963826}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.6283011, y: 1.1743274, z: 4.9638405}
+  m_Center: {x: 0, y: 0.08302021, z: 2.1102328}
 --- !u!1 &5820970018842266574
 GameObject:
   m_ObjectHideFlags: 0
@@ -4994,14 +5046,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5820970018842266574}
   serializedVersion: 8
-  lengthInSec: 1
+  lengthInSec: 2
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -9770,14 +9822,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8511858309725822152}
   serializedVersion: 8
-  lengthInSec: 1
+  lengthInSec: 2
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 3
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
