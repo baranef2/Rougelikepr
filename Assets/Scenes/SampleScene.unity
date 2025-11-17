@@ -14665,7 +14665,7 @@ MonoBehaviour:
   coyoteTime: 0.12
   jumpBuffer: 0.12
   maxAirJumps: 0
-  jumpCooldown: 2
+  jumpCooldown: 1.5
   jumpSmokeVFX: {fileID: 7390171070072975123, guid: 786ea5f3af762c94087051abde3ddd03, type: 3}
   dashSpeed: 10
   dashDuration: 0.18

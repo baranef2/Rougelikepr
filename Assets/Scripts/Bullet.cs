@@ -96,7 +96,7 @@ public class Bullet : MonoBehaviour
             _trail.emitting = false;
 
             // Objeyi, trail'in kaybolma süresi + küçük bir tampon süre sonra yok et
-            Destroy(gameObject, _trailTime + 0.1f);
+            Destroy(gameObject,  0.1f);
         }
         else
         {
