@@ -217,6 +217,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SelectSlot3"",
+                    ""type"": ""Button"",
+                    ""id"": ""262071cc-2d0b-4748-85a6-0b015fc82e23"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -657,6 +666,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bee930c0-0e24-4cb4-aaea-2aaaa7c862b8"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectSlot3"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1258,6 +1278,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Fire = m_Player.FindAction("Fire", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_Zoom = m_Player.FindAction("Zoom", throwIfNotFound: true);
+        m_Player_SelectSlot3 = m_Player.FindAction("SelectSlot3", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1365,6 +1386,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Fire;
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_Zoom;
+    private readonly InputAction m_Player_SelectSlot3;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1433,6 +1455,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Zoom => m_Wrapper.m_Player_Zoom;
         /// <summary>
+        /// Provides access to the underlying input action "Player/SelectSlot3".
+        /// </summary>
+        public InputAction @SelectSlot3 => m_Wrapper.m_Player_SelectSlot3;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1500,6 +1526,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Zoom.started += instance.OnZoom;
             @Zoom.performed += instance.OnZoom;
             @Zoom.canceled += instance.OnZoom;
+            @SelectSlot3.started += instance.OnSelectSlot3;
+            @SelectSlot3.performed += instance.OnSelectSlot3;
+            @SelectSlot3.canceled += instance.OnSelectSlot3;
         }
 
         /// <summary>
@@ -1553,6 +1582,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Zoom.started -= instance.OnZoom;
             @Zoom.performed -= instance.OnZoom;
             @Zoom.canceled -= instance.OnZoom;
+            @SelectSlot3.started -= instance.OnSelectSlot3;
+            @SelectSlot3.performed -= instance.OnSelectSlot3;
+            @SelectSlot3.canceled -= instance.OnSelectSlot3;
         }
 
         /// <summary>
@@ -1951,6 +1983,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnZoom(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SelectSlot3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSelectSlot3(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

@@ -38,6 +38,7 @@ public class Bullet : MonoBehaviour
         // --- BÝTÝÞ ---
 
         transform.position += _dir * speed * Time.deltaTime;
+        
         lifeTime -= Time.deltaTime;
 
         // ESKÝ KOD: if (lifeTime <= 0f) Destroy(gameObject);

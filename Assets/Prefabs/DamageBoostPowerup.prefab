@@ -127,7 +127,9 @@ MonoBehaviour:
   type: 2
   amount: 2
   duration: 5
-  playerTag: Player
   pickupVFX: {fileID: 844113144062071549, guid: b25ac9f6268c5a942be11dfb1b6a62dd, type: 3}
+  pickupSound: {fileID: 8300000, guid: 47f335f047d324d4192284156945347a, type: 3}
+  soundVolume: 0.15
+  playerTag: Player
   rotationspeed: 60
   despawnTime: 15

@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
     #region VISUALS
 
     [SerializeField] private GameObject armObject;
+    [SerializeField] private GameObject arm2Object;
     [SerializeField] private bool startWithWeapon = false; 
     #endregion
 
@@ -48,6 +49,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private float baseBulletDamage = 10f;
     [SerializeField] private float attackCoolDown = 1f;
+    [SerializeField] private float attackRotationLockTime = 0.5f;
+    private float _rotationUnlockTime; 
     private float _nextFireTime = 0f;
     public event Action OnPlayerAttack;
     #endregion
@@ -118,7 +121,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region HOLSTER
-    private enum HandState { Empty, Weapon }
+    private enum HandState { Empty, Weapon, Weapon2 }
     private HandState _state;
 
     private Health _health;
@@ -147,7 +150,8 @@ public class PlayerController : MonoBehaviour
 
         
         _PlayerInputActions.Player.SelectSlot1.started += OnSelectSlot1; 
-        _PlayerInputActions.Player.SelectSlot2.started += OnSelectSlot2; 
+        _PlayerInputActions.Player.SelectSlot2.started += OnSelectSlot2;
+        _PlayerInputActions.Player.SelectSlot3.started += OnSelectSlot3;
 
         _PlayerInputActions.Player.Fire.started += OnFire;
         _PlayerInputActions.Player.Jump.performed += ctx => _lastJumpPressed = Time.time;
@@ -169,6 +173,7 @@ public class PlayerController : MonoBehaviour
     {
         _PlayerInputActions.Player.SelectSlot1.started -= OnSelectSlot1;
         _PlayerInputActions.Player.SelectSlot2.started -= OnSelectSlot2;
+        _PlayerInputActions.Player.SelectSlot3.started -= OnSelectSlot3;
         _PlayerInputActions.Player.Fire.started -= OnFire;
         _PlayerInputActions.Player.Jump.performed -= ctx => _lastJumpPressed = Time.time;
         _PlayerInputActions.Player.Dash.performed -= _ => TryStartDash();
@@ -228,6 +233,7 @@ public class PlayerController : MonoBehaviour
 
     private void ApplyRotation()
     {
+        if (Time.time < _rotationUnlockTime) return;
         if (_isWallSliding)
         {
             Vector3 wallLookDir = -_lastWallNormal;
@@ -287,8 +293,8 @@ public class PlayerController : MonoBehaviour
     private void OnFire(InputAction.CallbackContext ctx)
     {
         if (Time.time < _nextFireTime) return;
-        
-        if (_state != HandState.Weapon) return;
+
+        if (_state == HandState.Empty) return;
 
         if (bulletPrefab == null || firePoint == null) return;
 
@@ -298,15 +304,22 @@ public class PlayerController : MonoBehaviour
 
         if (TryGetMouseWorldPoint(out Vector3 hitPoint))
         {
-            Vector3 dir = (hitPoint - firePoint.position);
-            dir.y = 0;
-            if (dir.sqrMagnitude < 0.0001f) return;
+            Vector3 lookDirection = hitPoint - transform.position;
+            lookDirection.y = 0;
+            if (lookDirection.sqrMagnitude > 0.001f)
+            {
+                transform.rotation = Quaternion.LookRotation(lookDirection);
+                _rotationUnlockTime = Time.time + attackRotationLockTime;
+            }
+            Vector3 targetPosition = hitPoint + Vector3.up * 0.3f;
+            Vector3 bulletDir = (targetPosition - firePoint.position).normalized;
+            
 
-            GameObject go = Instantiate(bulletPrefab, firePoint.position, Quaternion.LookRotation(dir, Vector3.up));
+            GameObject go = Instantiate(bulletPrefab, firePoint.position, Quaternion.LookRotation(bulletDir, Vector3.up));
             if (go.TryGetComponent<Bullet>(out var bullet))
             {
                 float finalDamage = _originalBulletDamage * _damageMultiplier;
-                bullet.Init(dir, finalDamage);
+                bullet.Init(bulletDir, finalDamage);
             }
 
             OnPlayerAttack?.Invoke();
@@ -620,15 +633,23 @@ public class PlayerController : MonoBehaviour
         ApplyVisualState();
     }
 
+    private void OnSelectSlot3(InputAction.CallbackContext ctx)
+    {
+        _state = HandState.Weapon2;  // 3 = silah
+        ApplyVisualState();
+    }
+
     private void ApplyVisualState()
     {
         if (armObject != null)
             armObject.SetActive(_state == HandState.Weapon); // Empty: kapalı, Weapon: açık
+
+        if (arm2Object != null)
+            arm2Object.SetActive(_state == HandState.Weapon2);
     }
     #endregion
+
+
    
-    
-
-
 
 }
