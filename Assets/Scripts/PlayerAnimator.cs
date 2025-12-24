@@ -17,6 +17,9 @@ public class PlayerAnimator : MonoBehaviour
     private int _animIDAttack;
     private int _animIDDamage;
     private int _animIDDeath;
+    private int _animIDIsClimbing;
+    private int _animIDClimbX;
+    private int _animIDClimbY;
 
     private void Awake()
     {
@@ -41,6 +44,9 @@ public class PlayerAnimator : MonoBehaviour
         _animIDAttack = Animator.StringToHash("Attack");
         _animIDDamage = Animator.StringToHash("Damage");
         _animIDDeath = Animator.StringToHash("Death");
+        _animIDIsClimbing = Animator.StringToHash("IsClimbing");
+        _animIDClimbX = Animator.StringToHash("ClimbX");
+        _animIDClimbY = Animator.StringToHash("ClimbY");
     }
 
 
@@ -68,20 +74,36 @@ public class PlayerAnimator : MonoBehaviour
         if (_animator == null || _playerController == null) return;
 
         
-
-        
         _animator.SetFloat(_animIDSpeed, _playerController.InputMagnitude);
-
-        
         _animator.SetBool(_animIDGrounded, _playerController.IsGrounded);
-
-        
         _animator.SetFloat(_animIDVerticalSpeed, _playerController.VerticalVelocity);
 
         
-        _animator.SetBool(_animIDWallSlide, _playerController.IsWallSliding);
+        bool isWallSliding = _playerController.IsWallSliding;
+        _animator.SetBool(_animIDWallSlide, isWallSliding);
 
         
+        bool isClimbing = _playerController.IsClimbing;
+        _animator.SetBool(_animIDIsClimbing, isClimbing);
+
+        
+        if (isClimbing || isWallSliding)
+        {
+            
+            Vector3 rawInput = _playerController.CurrentInput;
+
+           
+            float inputX = rawInput.x;
+            float inputY = rawInput.z;
+
+            
+            if (Mathf.Abs(inputX) < 0.1f) inputX = 0f;
+            if (Mathf.Abs(inputY) < 0.1f) inputY = 0f;
+
+            
+            _animator.SetFloat(_animIDClimbX, inputX, 0.1f, Time.deltaTime);
+            _animator.SetFloat(_animIDClimbY, inputY, 0.1f, Time.deltaTime);
+        }
     }
 
     

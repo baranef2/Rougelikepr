@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     public event System.Action OnPlayerDamage;
     public event System.Action OnPlayerDeath;
     #region MOVEMENT
-
+    [HideInInspector] public bool is2DMode = false;
     [SerializeField] private float speed = 5;
     [SerializeField] private float rotationSpeed = 720f;
     [Header("Speed Caps")]
@@ -223,19 +223,40 @@ public class PlayerController : MonoBehaviour
         _moveDirectionWorld = Vector3.zero;
             return;
         }
+        if (is2DMode)
+        {  Transform camTransform = _cam.transform;
 
+        Vector3 cameraRight = camTransform.right;
+        Vector3 cameraUp = camTransform.up;
+        cameraRight.y = 0;
+        cameraRight.Normalize();
+        Vector3 wallUp = Vector3.up;
+        
+            _moveDirectionWorld = (cameraRight * _input.x)+ (wallUp * _input.z);
+            _moveDirectionWorld = _moveDirectionWorld.normalized;
+        }
+        else
+        {
         Matrix4x4 iso = Matrix4x4.Rotate(Quaternion.Euler(0f, 45f,0f));
 
         Vector3 dir = iso.MultiplyPoint3x4(_input);
         _moveDirectionWorld = dir.normalized;
+        }
+        
     }
 
 
     private void ApplyRotation()
     {
         if (Time.time < _rotationUnlockTime) return;
+        if (is2DMode)
+        {
+            transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+            return;
+        }
         if (_isWallSliding)
         {
+           
             Vector3 wallLookDir = -_lastWallNormal;
             wallLookDir.y = 0;
 
@@ -352,14 +373,22 @@ public class PlayerController : MonoBehaviour
     }
     private void ApplyGravityAndGroundCheck()
     {
+        
+
         if (_characterController.isGrounded)
         {
             _lastGroundedTime = Time.time;
             _airJumpCount = 0;
             if (_verticalVelocity < 0f) _verticalVelocity = -2f;
         }
+
+        if (is2DMode)
+        {
+        _verticalVelocity = 0f;
+            return;
+        }
         
-        // ESKİ HALİ: _verticalVelocity += gravity * Time.deltaTime;
+        //ESKİ HALİ: _verticalVelocity += gravity * Time.deltaTime;
 
         
         if (_verticalVelocity < 0) 
@@ -480,22 +509,21 @@ public class PlayerController : MonoBehaviour
     {
 
         if (_isStunned) return;
-        // Yerde değilsek ve duvara değiyorsak anında wall jump uygulama
+        
         if (_characterController.isGrounded) return;
         if (!IsTouchingWall(out var normal)) return;
 
-        // Yukarı hız ver
+        
         _verticalVelocity = Mathf.Sqrt(wallJumpVertical * -2f * gravity);
         OnPlayerJump?.Invoke();
         _isDashing = false;
         _dashEndTime = 0f;
 
-        // Kısa süreli yana itiş için pencere aç
+        
         _wallKickDir = normal;      
         _wallKickTimeLeft = 0.12f;  
 
-        // Havadaki zıplama haklarını sıfırlamak 
-        // _airJumpCount = 0;
+        
         
         _lastJumpPressed = -999f;
 
@@ -507,7 +535,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnDamaged(float currentHealthPercent)
     {
-        //blood VFX
+        
         if(bloodSplashVFX != null)
         {
             Vector3 spawnPosition = transform.position + _characterController.center;
@@ -527,8 +555,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator StunRoutine()
     {   _isStunned = true;
-        //HASAR ALMA ANİMASYONUNU BURADA TETİKLE
-        //animator.SetTrigger("Hit");
+        
 
         yield return new WaitForSeconds(stunDuration);
         _isStunned = false;
@@ -613,11 +640,14 @@ public class PlayerController : MonoBehaviour
 
     
     public float VerticalVelocity => _verticalVelocity; 
-    public bool IsWallSliding => _isWallSliding; 
-
-
-
+    public bool IsWallSliding => _isWallSliding;
+    public bool IsClimbing => is2DMode;
+    public Vector3 CurrentInput => _input;
     
+
+
+
+
     #endregion
     #region CALLBACKS
 
