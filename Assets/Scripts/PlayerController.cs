@@ -475,12 +475,20 @@ public class PlayerController : MonoBehaviour
         wallNormal = Vector3.zero;
         if (_characterController.isGrounded) return false;
 
+        // Karakterin merkezinden başla
         Vector3 origin = transform.position + Vector3.up * (_characterController.height * 0.5f);
-        Vector3[] dirs = { transform.forward, transform.right, -transform.right };
+
+        // Yanal yönleri kontrol et (Forward, Right, -Right, -Forward)
+        Vector3[] dirs = { transform.forward, transform.right, -transform.right, -transform.forward };
+
+        // Raycast yerine SphereCast kullanalım (Daha kalın bir tarama yapar)
+        float checkRadius = 0.25f; // Işın kalınlığı
+        float checkDistance = wallCheckDistance + 0.1f; // Mesafeyi biraz toleranslı yapalım
 
         foreach (var dir in dirs)
         {
-            if(Physics.Raycast(origin , dir , out RaycastHit hit , wallCheckDistance , wallMask , QueryTriggerInteraction.Ignore))
+            // Raycast yerine SphereCast
+            if (Physics.SphereCast(origin, checkRadius, dir, out RaycastHit hit, checkDistance, wallMask, QueryTriggerInteraction.Ignore))
             {
                 wallNormal = hit.normal;
                 return true;
@@ -496,10 +504,15 @@ public class PlayerController : MonoBehaviour
 
         if (IsTouchingWall(out _lastWallNormal))
         {
-            if(_verticalVelocity < 0f)
+            if (_verticalVelocity < 0f)
             {
-                _verticalVelocity = Mathf.Max(_verticalVelocity, wallSlideGravity);
+                _verticalVelocity = Mathf.Max(_verticalVelocity, wallSlideGravity); // Yavaşça aşağı kay
                 _isWallSliding = true;
+
+                // EKLENECEK KISIM: STABILIZASYON
+                // Karakteri duvara doğru hafifçe it ki temas kopmasın
+                Vector3 pushToWall = -_lastWallNormal * 1f * Time.deltaTime;
+                _characterController.Move(pushToWall);
             }
         }
     }
