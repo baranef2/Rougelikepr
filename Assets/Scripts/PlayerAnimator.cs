@@ -20,6 +20,8 @@ public class PlayerAnimator : MonoBehaviour
     private int _animIDIsClimbing;
     private int _animIDClimbX;
     private int _animIDClimbY;
+    private int _animIDComboStep;
+    private int _animIDWeaponType;
 
     private void Awake()
     {
@@ -47,6 +49,8 @@ public class PlayerAnimator : MonoBehaviour
         _animIDIsClimbing = Animator.StringToHash("IsClimbing");
         _animIDClimbX = Animator.StringToHash("ClimbX");
         _animIDClimbY = Animator.StringToHash("ClimbY");
+        _animIDComboStep = Animator.StringToHash("ComboStep");
+        _animIDWeaponType = Animator.StringToHash("WeaponType");
     }
 
 
@@ -119,16 +123,20 @@ public class PlayerAnimator : MonoBehaviour
     private void HandlePlayerAttack()
     {
         if (_animator == null) return;
-
-        
+        int weaponType = _playerController.CurrentWeaponType;
+        _animator.SetInteger(_animIDWeaponType, weaponType);
+        int step = _playerController.CurrentComboStep;
+        _animator.SetInteger(_animIDComboStep, step);
+        _animator.ResetTrigger(_animIDAttack);
         _animator.SetTrigger(_animIDAttack);
+
     }
 
     private void HandlePlayerDamage()
     {
         if (_animator == null) return;
 
-        
+        _animator.ResetTrigger(_animIDAttack);
         _animator.SetTrigger(_animIDDamage);
     }
 

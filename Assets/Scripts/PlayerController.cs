@@ -16,11 +16,20 @@ public enum PowerupType
 public class PlayerController : MonoBehaviour
 {
 
+    public enum MovementType
+    {
+        Isometric,
+        WallClimb,
+        SideScroller
+    }
+    public MovementType currentMovementType = MovementType.Isometric;
+
     public event System.Action OnPlayerDamage;
     public event System.Action OnPlayerDeath;
     #region MOVEMENT
     [HideInInspector] public bool is2DMode = false;
     [SerializeField] private float speed = 5;
+    [SerializeField] private float wallClimbSpeed = 2;
     [SerializeField] private float rotationSpeed = 720f;
     [Header("Speed Caps")]
     [SerializeField] private float maxHorizontalSpeed = 15f;
@@ -50,6 +59,23 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float baseBulletDamage = 10f;
     [SerializeField] private float attackCoolDown = 1f;
     [SerializeField] private float attackRotationLockTime = 0.5f;
+    //meleeCombat
+    [SerializeField] private float swordDamage = 50f;
+    [SerializeField] private float swordAttackRange = 1.5f;
+    [SerializeField] private float comboResetTime = 0.8f;
+    [SerializeField] private float swordComboDelay = 0.3f;
+    [SerializeField] private LayerMask enemyLayer;
+    //meleemovement
+    [SerializeField] private float attackLungeSpeed = 8f;
+    [SerializeField] private float attackLungeDuration = 0.2f;
+    [SerializeField] private TrailRenderer weaponTrail;
+
+    private int _currentComboStep = 0;
+    private float _lastAttackTime = -999f;
+    private bool _isAttacking = false;
+    private bool isAttacking = false;
+    private Vector3 _attackLungeVelocity;
+
     private float _rotationUnlockTime; 
     private float _nextFireTime = 0f;
     public event Action OnPlayerAttack;
@@ -218,42 +244,58 @@ public class PlayerController : MonoBehaviour
 
     private void CalculateMoveDirection()
     {
-        if(_input == Vector3.zero) { 
-        
-        _moveDirectionWorld = Vector3.zero;
+        if (_isAttacking)
+        {
+            _moveDirectionWorld = Vector3.zero;
             return;
         }
-        if (is2DMode)
-        {  Transform camTransform = _cam.transform;
 
-        Vector3 cameraRight = camTransform.right;
-        Vector3 cameraUp = camTransform.up;
-        cameraRight.y = 0;
-        cameraRight.Normalize();
-        Vector3 wallUp = Vector3.up;
-        
-            _moveDirectionWorld = (cameraRight * _input.x)+ (wallUp * _input.z);
-            _moveDirectionWorld = _moveDirectionWorld.normalized;
-        }
-        else
+        switch (currentMovementType)
         {
-        Matrix4x4 iso = Matrix4x4.Rotate(Quaternion.Euler(0f, 45f,0f));
+            case MovementType.Isometric:
+                
+                Matrix4x4 iso = Matrix4x4.Rotate(Quaternion.Euler(0f, 45f, 0f));
+                _moveDirectionWorld = iso.MultiplyPoint3x4(_input).normalized;
+                break;
 
-        Vector3 dir = iso.MultiplyPoint3x4(_input);
-        _moveDirectionWorld = dir.normalized;
+            case MovementType.WallClimb: 
+                Transform camTransform = _cam.transform;
+                Vector3 cameraRight = camTransform.right;
+                cameraRight.y = 0;
+                cameraRight.Normalize();
+                _moveDirectionWorld = (cameraRight * _input.x) + (Vector3.up * _input.z);
+                _moveDirectionWorld = _moveDirectionWorld.normalized;
+                break;
+
+            case MovementType.SideScroller: 
+                                            
+                                            
+                _moveDirectionWorld = Vector3.right * _input.x;
+                break;
         }
-        
+
     }
 
 
     private void ApplyRotation()
     {
         if (Time.time < _rotationUnlockTime) return;
+
+        if (currentMovementType == MovementType.SideScroller)
+        {
+            
+            if (_input.x > 0) transform.rotation = Quaternion.Euler(0, 90, 0);
+            if (_input.x < 0) transform.rotation = Quaternion.Euler(0, -90, 0);
+            return;
+        }
+
         if (is2DMode)
         {
             transform.rotation = Quaternion.Euler(0f, 90f, 0f);
             return;
         }
+        
+        
         if (_isWallSliding)
         {
            
@@ -280,12 +322,20 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
+        float currentSpeed = speed;
+        if (currentMovementType == MovementType.WallClimb)
+        {
+            currentSpeed = wallClimbSpeed;
+        }
+
+
+
         //MOEVEMENT
-        Vector3 moveDir = _moveDirectionWorld * speed * _input.magnitude * Time.deltaTime;
+        Vector3 moveDir = _moveDirectionWorld * currentSpeed * _input.magnitude * Time.deltaTime;
        
         moveDir += new Vector3(_wallKickVelocity.x, 0f, _wallKickVelocity.z) * Time.deltaTime;
 
-
+        moveDir += _attackLungeVelocity * Time.deltaTime;
         
         if (_wallKickVelocity.sqrMagnitude > 0.0001f)
         {
@@ -313,6 +363,14 @@ public class PlayerController : MonoBehaviour
     }
     private void OnFire(InputAction.CallbackContext ctx)
     {
+        if (_isDead || _isStunned) return;
+
+        if (_state == HandState.Weapon2)
+        {
+            
+            HandleMeleeAttack();
+            return;
+        }
         if (Time.time < _nextFireTime) return;
 
         if (_state == HandState.Empty) return;
@@ -342,10 +400,12 @@ public class PlayerController : MonoBehaviour
                 float finalDamage = _originalBulletDamage * _damageMultiplier;
                 bullet.Init(bulletDir, finalDamage);
             }
-
+            
             OnPlayerAttack?.Invoke();
             _nextFireTime = Time.time + attackCoolDown;
         }
+        
+        
     }
 
     private bool TryGetMouseWorldPoint(out Vector3 point)
@@ -353,22 +413,41 @@ public class PlayerController : MonoBehaviour
         point = default;
         if (_cam == null) return false;
 
-        Ray ray = _cam.ScreenPointToRay(Mouse.current.position.ReadValue());
+        
+        if (currentMovementType == MovementType.SideScroller)
+        {
+            
+            Plane verticalPlane = new Plane(Vector3.forward, new Vector3(0, 0, transform.position.z));
+
+            Ray ray = _cam.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+            if (verticalPlane.Raycast(ray, out float enter))
+            {
+                point = ray.GetPoint(enter);
+                return true;
+            }
+            return false; 
+        }
+        
+
+        
+        Ray isoRay = _cam.ScreenPointToRay(Mouse.current.position.ReadValue());
         LayerMask combinedMask = groundMask | wallMask;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, combinedMask, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(isoRay, out RaycastHit hit, Mathf.Infinity, combinedMask, QueryTriggerInteraction.Ignore))
         {
             point = hit.point;
             return true;
         }
 
-        //  YEDEK OYUNCUNUN AYAK HİZASINDA SONSUZ DÜZLEM
+        
         Plane plane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
-        if (plane.Raycast(ray, out float enter))
+        if (plane.Raycast(isoRay, out float planeEnter))
         {
-            point = ray.GetPoint(enter);
+            point = isoRay.GetPoint(planeEnter);
             return true;
         }
+
         return false;
     }
     private void ApplyGravityAndGroundCheck()
@@ -382,26 +461,29 @@ public class PlayerController : MonoBehaviour
             if (_verticalVelocity < 0f) _verticalVelocity = -2f;
         }
 
-        if (is2DMode)
+        if (_characterController.isGrounded)
         {
-        _verticalVelocity = 0f;
-            return;
+            _lastGroundedTime = Time.time;
+            _airJumpCount = 0;
+            if (_verticalVelocity < 0f) _verticalVelocity = -2f;
         }
-        
-        //ESKİ HALİ: _verticalVelocity += gravity * Time.deltaTime;
 
         
-        if (_verticalVelocity < 0) 
+        if (currentMovementType == MovementType.WallClimb)
         {
-            
+            _verticalVelocity = 0f;
+            return;
+        }
+
+        
+        if (_verticalVelocity < 0)
+        {
             _verticalVelocity += gravity * fallGravityMultiplier * Time.deltaTime;
         }
-        else 
+        else
         {
-            
             _verticalVelocity += gravity * Time.deltaTime;
         }
-        
     }
 
     private void TryConsumeJumpBuffer()
@@ -640,6 +722,130 @@ public class PlayerController : MonoBehaviour
         // Burası "Game Over" ekranını 2-3 saniye sonra tetikleyeceğin yer.
         // Örn: FindObjectOfType<GameManager>().ShowGameOverScreen(2f);
     }
+
+    private void HandleMeleeAttack()
+    {
+        if (_isAttacking && Time.time < _lastAttackTime + 0.3f) return;
+        if (Time.time < _lastAttackTime + swordComboDelay)
+        {
+            return;
+        }  
+        
+        float timeSinceLastAttack = Time.time - _lastAttackTime;
+
+        
+        if (timeSinceLastAttack > comboResetTime || _currentComboStep >= 3)
+        {
+            _currentComboStep = 0;
+        }        
+        _currentComboStep++;
+        _lastAttackTime = Time.time;
+       
+        RotateToMouseCursor();
+
+        StartCoroutine(PerformAttackLungeRoutine());
+        
+
+        OnPlayerAttack?.Invoke();
+    }
+    private void RotateToMouseCursor()
+    {
+        if (TryGetMouseWorldPoint(out Vector3 hitPoint))
+        {
+            Vector3 lookDirection = hitPoint - transform.position;
+            lookDirection.y = 0;
+            if (lookDirection.sqrMagnitude > 0.001f)
+            {
+                transform.rotation = Quaternion.LookRotation(lookDirection);
+            }
+        }
+    }
+
+    private IEnumerator PerformAttackLungeRoutine()
+    {
+        // Hareketi kilitle
+        _isAttacking = true;
+
+        // Trail'i aç
+        if (weaponTrail != null) weaponTrail.emitting = true;
+
+        // === 1. FİZİKSEL ATILIM (LUNGE) KISMI ===
+        float lungeTimer = 0f;
+        while (lungeTimer < attackLungeDuration)
+        {
+            // Lerp ile hızı yavaşça düşür
+            float currentSpeed = Mathf.Lerp(attackLungeSpeed, 0f, lungeTimer / attackLungeDuration);
+            _attackLungeVelocity = transform.forward * currentSpeed;
+
+            lungeTimer += Time.deltaTime;
+            yield return null; // Bir sonraki kareye bekle
+        }
+
+        _attackLungeVelocity = Vector3.zero;
+
+        // === 2. ANİMASYON BEKLEME (MOVEMENT LOCK) KISMI ===
+        // Sorunun Çözümü: Lunge bitse bile animasyonun bitmesini bekle!
+        // Buradaki 0.4f değerini animasyonun uzunluğuna göre artırıp azaltabilirsin.
+        // Toplam kilit süresi = attackLungeDuration + bu bekleme süresi olur.
+        yield return new WaitForSeconds(0.4f);
+
+        // Trail'i kapat
+        if (weaponTrail != null) weaponTrail.emitting = false;
+
+        // Hareketi serbest bırak
+        _isAttacking = false;
+    }
+    public void AnimEvent_MeleeHit()
+    {
+        // Kılıcın etki alanını belirle
+        Vector3 hitCenter = transform.position + transform.forward * (swordAttackRange / 2);
+
+        // Alandaki tüm collider'ları topla
+        Collider[] hitEnemies = Physics.OverlapSphere(hitCenter, swordAttackRange, enemyLayer);
+
+        // Hiçbir şeye çarpmadıysa konsola yaz (Debug için)
+        if (hitEnemies.Length == 0)
+        {
+            Debug.Log("Kılıç savruldu ama kimseye değmedi (LayerMask'ı kontrol et).");
+        }
+
+        foreach (Collider enemyCollider in hitEnemies)
+        {
+            // ÖNEMLİ DEĞİŞİKLİK BURADA:
+            // Sadece çarptığımız parçaya değil, onun bağlı olduğu ana objeye (Parent) de bakıyoruz.
+            Health hp = enemyCollider.GetComponent<Health>();
+
+            if (hp == null)
+            {
+                hp = enemyCollider.GetComponentInParent<Health>();
+            }
+
+            // Eğer Health scripti bulunduysa hasar ver
+            if (hp != null)
+            {
+                // İstersen 3. vuruşta (Final) ekstra hasar ver
+                float dmg = _currentComboStep == 3 ? swordDamage * 2f : swordDamage;
+
+                // Damage Boost powerup kontrolü
+                dmg *= _damageMultiplier;
+
+                hp.TakeDamage(dmg);
+
+                // Görsel efekt (Blood VFX) veya ses burada çalınabilir
+                Debug.Log($"DÜŞMAN VURULDU! Vurulan Parça: {enemyCollider.name}, Hasar: {dmg}");
+            }
+            else
+            {
+                Debug.LogWarning($"Collider'a çarpıldı ({enemyCollider.name}) ama Health scripti bulunamadı!");
+            }
+        }
+    }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Vector3 hitCenter = transform.position + transform.forward * (swordAttackRange / 2);
+        Gizmos.DrawWireSphere(hitCenter, swordAttackRange);
+    }
     #endregion
 
     #region PUBLIC GETTERS (Animasyon Script'i için)
@@ -656,7 +862,17 @@ public class PlayerController : MonoBehaviour
     public bool IsWallSliding => _isWallSliding;
     public bool IsClimbing => is2DMode;
     public Vector3 CurrentInput => _input;
-    
+    public int CurrentComboStep => _currentComboStep;
+    public int CurrentWeaponType
+    {
+        get
+        {
+            if (_state == HandState.Weapon) return 1;  
+            if (_state == HandState.Weapon2) return 2; 
+            return 0; 
+        }
+    }
+
 
 
 
