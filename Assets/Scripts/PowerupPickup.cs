@@ -1,22 +1,22 @@
 using UnityEngine;
-
+using UnityEngine.Events;
 public class PowerupPickup : MonoBehaviour
 {
-    [Header("Powerup Settings")]
+    
     [SerializeField] private PowerupType type;
     [SerializeField] private float amount = 2f;
     [SerializeField] private float duration = 5f;
 
-    [Header("Visuals & Audio")]
+    
     [SerializeField] private GameObject pickupVFX;
-    [SerializeField] private AudioClip pickupSound; // YENÝ: Ses dosyasý için alan
-    [SerializeField, Range(0f, 1f)] private float soundVolume = 1f; // YENÝ: Ses þiddeti ayarý
+    [SerializeField] private AudioClip pickupSound; 
+    [SerializeField, Range(0f, 1f)] private float soundVolume = 1f; 
 
-    [Header("Setup")]
+    
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private float rotationspeed = 60f;
     [SerializeField] private float despawnTime = 15f;
-
+    public UnityEvent onPickup;
     private void Awake()
     {
         Collider col = GetComponent<Collider>();
@@ -52,8 +52,8 @@ public class PowerupPickup : MonoBehaviour
                     
                     AudioSource.PlayClipAtPoint(pickupSound, transform.position, soundVolume);
                 }
-                
 
+                onPickup?.Invoke();
                 
                 Destroy(gameObject);
             }

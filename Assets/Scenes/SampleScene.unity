@@ -732,79 +732,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   isDead: 0
---- !u!114 &34561872
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 34561866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8cc373f353b41042ac18f3c5649a2af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
---- !u!114 &34561873
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 34561866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a55f1db3b3e870e48a34c9a8ace8bb67, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  currentMovementType: 0
-  is2DMode: 0
-  speed: 5
-  wallClimbSpeed: 3
-  rotationSpeed: 720
-  maxHorizontalSpeed: 10
-  armObject: {fileID: 16538948}
-  arm2Object: {fileID: 531902322}
-  startWithWeapon: 0
-  bulletPrefab: {fileID: 4221297204411255635, guid: b719a9351a77c19498c2adedc1bd5a8a, type: 3}
-  firePoint: {fileID: 1684451108}
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 64
-  baseBulletDamage: 5
-  attackCoolDown: 1
-  attackRotationLockTime: 0.5
-  swordDamage: 5
-  swordAttackRange: 1.5
-  comboResetTime: 0.8
-  swordComboDelay: 0.5
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  attackLungeSpeed: 5
-  attackLungeDuration: 0.2
-  weaponTrail: {fileID: 531902327}
-  gravity: -9.81
-  fallGravityMultiplier: 2.5
-  jumpHeight: 1.6
-  coyoteTime: 0.12
-  jumpBuffer: 0.12
-  maxAirJumps: 0
-  jumpCooldown: 1.5
-  jumpSmokeVFX: {fileID: 7390171070072975123, guid: 786ea5f3af762c94087051abde3ddd03, type: 3}
-  dashSpeed: 10
-  dashDuration: 0.18
-  dashCooldown: 1.5
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 128
-  wallCheckDistance: 1
-  wallSlideGravity: -0.5
-  wallJumpHorizontal: 6
-  wallJumpVertical: 1.4
-  wallKickDecay: 12
-  wallKickLegacyDisplacement: 0
-  stunDuration: 0.1
-  bloodSplashVFX: {fileID: 3055653645022636042, guid: e0852a567c1efd74a9887969923bdbfd, type: 3}
 --- !u!143 &34561874
 CharacterController:
   m_ObjectHideFlags: 0
@@ -857,6 +784,81 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6b616c5843f2a5442946920b3258414a, type: 3}
   m_PrefabInstance: {fileID: 1747618916}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &34561877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 34561866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf75195900a89c24cbe1dc43fa31349e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  currentMovementType: 0
+  is2DMode: 0
+  speed: 5
+  wallClimbSpeed: 3
+  rotationSpeed: 720
+  maxHorizontalSpeed: 10
+  armObject: {fileID: 16538948}
+  arm2Object: {fileID: 531902322}
+  startWithWeapon: 0
+  bulletPrefab: {fileID: 4221297204411255635, guid: b719a9351a77c19498c2adedc1bd5a8a, type: 3}
+  firePoint: {fileID: 1684451108}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  baseBulletDamage: 5
+  attackCoolDown: 1
+  attackRotationLockTime: 0.5
+  inputBufferWindow: 0.5
+  attackRecoveryDelay: 0.2
+  swordDamage: 5
+  swordAttackRange: 1.5
+  comboResetTime: 0.8
+  swordComboDelay: 0.5
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  attackLungeSpeed: 5
+  attackLungeDuration: 0.2
+  weaponTrail: {fileID: 531902327}
+  gravity: -9.81
+  fallGravityMultiplier: 2.5
+  jumpHeight: 1.6
+  coyoteTime: 0.12
+  jumpBuffer: 0.12
+  maxAirJumps: 0
+  jumpCooldown: 1.5
+  jumpSmokeVFX: {fileID: 7390171070072975123, guid: 786ea5f3af762c94087051abde3ddd03, type: 3}
+  dashSpeed: 10
+  dashDuration: 0.18
+  dashCooldown: 1.5
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 128
+  wallCheckDistance: 1
+  wallSlideGravity: -0.5
+  wallJumpHorizontal: 6
+  wallJumpVertical: 1.4
+  wallKickDecay: 12
+  wallKickLegacyDisplacement: 0
+  stunDuration: 0.1
+  bloodSplashVFX: {fileID: 3055653645022636042, guid: e0852a567c1efd74a9887969923bdbfd, type: 3}
+--- !u!114 &34561878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 34561866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99a89157962423045becace189d8155b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
 --- !u!1 &48268832 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1702679733408969809, guid: 8a5785749b03d074082e2a1d92afda49, type: 3}
@@ -16030,17 +16032,17 @@ MonoBehaviour:
   bulletPrefab: {fileID: 4221297204411255635, guid: b719a9351a77c19498c2adedc1bd5a8a, type: 3}
   firePoint: {fileID: 695776234}
   groundMask:
-    serializedVersion: 2
     m_Bits: 64
   baseBulletDamage: 5
   attackCoolDown: 1
   attackRotationLockTime: 0.5
+  inputBufferWindow: 0.5
+  attackRecoveryDelay: 0.2
   swordDamage: 5
   swordAttackRange: 1.5
   comboResetTime: 1
   swordComboDelay: 0.3
   enemyLayer:
-    serializedVersion: 2
     m_Bits: 0
   attackLungeSpeed: 8
   attackLungeDuration: 0.2
@@ -16057,7 +16059,6 @@ MonoBehaviour:
   dashDuration: 0.18
   dashCooldown: 1.5
   wallMask:
-    serializedVersion: 2
     m_Bits: 128
   wallCheckDistance: 1
   wallSlideGravity: -0.5
@@ -25914,10 +25915,10 @@ PrefabInstance:
       addedObject: {fileID: 34561874}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6b616c5843f2a5442946920b3258414a, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 34561872}
+      addedObject: {fileID: 34561878}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6b616c5843f2a5442946920b3258414a, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 34561873}
+      addedObject: {fileID: 34561877}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6b616c5843f2a5442946920b3258414a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 34561870}
