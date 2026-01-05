@@ -19,11 +19,11 @@ GameObject:
   - component: {fileID: 1470782127544090675}
   m_Layer: 8
   m_Name: BrokenLOGTRAP (1)
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &561655399690052876
 Transform:
   m_ObjectHideFlags: 0

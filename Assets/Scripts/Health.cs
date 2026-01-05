@@ -28,7 +28,7 @@ public class Health : MonoBehaviour
             _currentHealth = 0;
             OnDeath?.Invoke();
             Debug.Log(gameObject.name + " öldü ");
-            //Destroy(gameObject, 0f);
+            Destroy(gameObject, 0f);
         }
     }
 
