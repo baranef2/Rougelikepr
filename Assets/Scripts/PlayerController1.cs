@@ -28,12 +28,13 @@ public class PlayerController : MonoBehaviour
 
     public event System.Action OnPlayerDamage;
     public event System.Action OnPlayerDeath;
+    public event System.Action OnPlayerDash;
     #region MOVEMENT
     [HideInInspector] public bool is2DMode = false;
     [SerializeField] private float speed = 5;
     [SerializeField] private float wallClimbSpeed = 2;
     [SerializeField] private float rotationSpeed = 720f;
-    [Header("Speed Caps")]
+   
     [SerializeField] private float maxHorizontalSpeed = 15f;
     [SerializeField] private float tpsRotationSmoothTime = 0.1f;
     private float _rotationVelocity;
@@ -115,6 +116,7 @@ public class PlayerController : MonoBehaviour
     private float _dashEndTime;
     private float _nextDashTime;
     private Vector3 _dashDir;
+    [SerializeField] private GameObject dashSmokeVFX;
     #endregion
 
     #region WALLJUMP
@@ -624,11 +626,20 @@ public class PlayerController : MonoBehaviour
         if (_isStunned) return;
         if (Time.time < _nextDashTime) return;
         if(_isDashing) return;
-
+        if (dashSmokeVFX != null)
+        {
+            // Efekti karakterin pozisyonunda yaratıyoruz.
+            // Quaternion.LookRotation(-transform.forward) kullanarak 
+            // efektin karakterin baktığı yönün TERSİNE (arkasına) bakmasını sağlayabiliriz.
+            // Eğer VFX'in zaten daireselse Quaternion.identity kullanabilirsin.
+            Vector3 vfxSpawnPos = transform.position + Vector3.up * 0.5f;
+            Instantiate(dashSmokeVFX, vfxSpawnPos, Quaternion.LookRotation(-transform.forward),transform);
+        }
         _dashDir = transform.forward;
         _isDashing = true;
         _dashEndTime = Time.time + dashDuration;
         _nextDashTime = Time.time + dashCooldown;
+        OnPlayerDash?.Invoke();
     }
 
 

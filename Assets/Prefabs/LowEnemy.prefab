@@ -14,15 +14,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ee93a6b0a28c82d4da2e5e845b78f27b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -152.90504
+      value: -49.569378
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ee93a6b0a28c82d4da2e5e845b78f27b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.15897405
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ee93a6b0a28c82d4da2e5e845b78f27b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -30.000313
+      value: -3.8284235
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ee93a6b0a28c82d4da2e5e845b78f27b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -202,8 +202,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28e16cec1a0be564d8091120d1570322, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  maxHealth: 10
-  _currentHealth: 0
+  maxHealth: 15
+  _currentHealth: 15
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -253,14 +253,14 @@ MonoBehaviour:
   attackDamage: 5
   attackCooldown: 2
   attackPreparationTime: 1
+  hitBloodVFX: {fileID: 6823200998282874702, guid: 8f8fe12323625f5499b2853dd2ad3e58, type: 3}
+  hitVFXOffset: {x: 0, y: 1, z: 0}
   enemyDeathVFX: {fileID: 4103667338601283852, guid: 796c6f2d91a6e854589404f0683a1cf7, type: 3}
+  slowDuration: 0.5
+  slowedSpeed: 0.5
   lootTable:
   - itemPrefab: {fileID: 6503779585902431644, guid: 0fc023e264d3f2d48936247d2435b8f8, type: 3}
     dropChancePercentage: 30
-  - itemPrefab: {fileID: 2459509831524261206, guid: ca3d28e28f730644a8a1f776dd342770, type: 3}
-    dropChancePercentage: 10
-  - itemPrefab: {fileID: 1607529374791381231, guid: 21433c6844824824ca267bdbb186ebce, type: 3}
-    dropChancePercentage: 10
   lootSpawnOffset: {x: 0, y: 0.5, z: 0}
 --- !u!136 &2912729857049057405
 CapsuleCollider:

@@ -1,120 +1,138 @@
 using UnityEngine;
 using System.Collections;
 
-/// <summary>
-/// Saydamlaþabilen bir objenin üzerine eklenir. 
-/// Materyalinin saydamlýðýný hýzlýca deðiþtirmeyi saðlar.
-/// DÝKKAT: Bu objenin materyali "Transparent" veya "Fade" modunda olmalýdýr!
-/// </summary>
 [RequireComponent(typeof(Renderer))]
 public class OccluderFader : MonoBehaviour
 {
     #region SETTINGS
+    [Header("Fading Ayarlarý")]
     [Tooltip("Tamamen saydam olduðundaki alfa deðeri")]
     [SerializeField] private float fadedAlpha = 0.2f;
     [Tooltip("Ne kadar hýzlý saydamlaþacaðý")]
-    [SerializeField] private float fadeSpeed = 8f;
+    [SerializeField] private float fadeSpeed = 10f; // Biraz hýzlandýrdým
+
+    [SerializeField] private string colorPropertyName = "_BaseColor";
     #endregion
 
     #region STATE
     private Renderer _renderer;
     private MaterialPropertyBlock _propBlock;
-    private Color _originalColor;
+    private Color _baseColor;
     private Coroutine _fadeRoutine;
-
-    // Shader'daki renk parametresinin ID'sini önbelleðe alýyoruz (performans için)
-    // --- DOÐRU SATIR ---
-    private static readonly int _colorPropertyID = Shader.PropertyToID("_BaseColor");
+    private int _colorID;
+    private bool _isInitialized = false;
+    private float _currentAlpha = 1f;
     #endregion
 
-    #region UNITY_METHODS
     private void Awake()
     {
-        // Gerekli component'leri ve varsayýlan deðerleri al
+        Initialize();
+    }
+
+    private void Start()
+    {
+        // Oyun baþlar baþlamaz objeyi tamamen opak (1.0) hale getir.
+        // Bu sayede editörde saydam býraksan bile oyunda düzelir.
+        FadeIn(true);
+    }
+
+    private void Initialize()
+    {
+        if (_isInitialized) return;
+
         _renderer = GetComponent<Renderer>();
         _propBlock = new MaterialPropertyBlock();
+        _colorID = Shader.PropertyToID(colorPropertyName);
 
-        // Varsayýlan rengi kaydet (materyalin kendi rengi)
-        // Eðer materyalin "_Color" adýnda bir property'si yoksa bu satýr hata verebilir.
-        // Genellikle Standard, URP Lit, HDRP Lit shader'larda bu isim "_Color" veya "_BaseColor" olur.
-        // Biz "_Color" varsayýyoruz.
-        if (_renderer.material.HasProperty(_colorPropertyID))
+        if (_renderer != null)
         {
-            _originalColor = _renderer.material.color;
-        }
-        else
-        {
-            // Alternatif olarak _BaseColor'ý deneyebilir veya manuel bir renk atayabilirsiniz
-            _originalColor = Color.white;
-            Debug.LogWarning($"Materyalde '_Color' property'si bulunamadý: {name}. Varsayýlan olarak 'White' kullanýlýyor.");
+            // DÝKKAT: .material yerine .sharedMaterial kullanýyoruz.
+            // Bu sayede konsoldaki "Instantiating material" hatasýný önleriz.
+            if (_renderer.sharedMaterial.HasProperty(_colorID))
+            {
+                _baseColor = _renderer.sharedMaterial.GetColor(_colorID);
+            }
+            else
+            {
+                // URP varsayýlan _BaseColor yoksa _Color dene
+                int altID = Shader.PropertyToID("_Color");
+                if (_renderer.sharedMaterial.HasProperty(altID))
+                {
+                    _colorID = altID;
+                    _baseColor = _renderer.sharedMaterial.GetColor(_colorID);
+                }
+                else
+                {
+                    _baseColor = Color.white;
+                }
+            }
+
+            // KRÝTÝK NOKTA:
+            // Materyalin orijinal rengini al ama Alphasýný 1 (Tam Opak) olarak zorla.
+            // Böylece materyal "bozuk" veya "silik" görünmez.
+            _baseColor.a = 1f;
         }
 
-        // Baþlangýçta opak yap
-        SetAlpha(_originalColor.a);
+        _isInitialized = true;
     }
-    #endregion
 
-    #region PUBLIC_METHODS
-    /// <summary>
-    /// Objeyi hedef alfa deðerine doðru saydamlaþtýrýr.
-    /// </summary>
     public void FadeOut()
     {
+        if (!_isInitialized) Initialize();
+        if (_renderer == null) return;
+
+        // Zaten hedeflediðimiz yerdeysek tekrar coroutine baþlatma
+        if (Mathf.Abs(_currentAlpha - fadedAlpha) < 0.01f) return;
+
         if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
         _fadeRoutine = StartCoroutine(FadeTo(fadedAlpha));
     }
 
-    /// <summary>
-    /// Objeyi orijinal opaklýðýna geri döndürür.
-    /// </summary>
-    public void FadeIn()
+    public void FadeIn(bool instant = false)
     {
-        if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
-        _fadeRoutine = StartCoroutine(FadeTo(_originalColor.a));
-    }
-    #endregion
+        if (!_isInitialized) Initialize();
+        if (_renderer == null) return;
 
-    #region PRIVATE_METHODS
+        // Zaten opaksak tekrar baþlatma
+        if (!instant && Mathf.Abs(_currentAlpha - 1f) < 0.01f) return;
+
+        if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
+
+        if (instant)
+        {
+            SetAlpha(1f);
+        }
+        else
+        {
+            _fadeRoutine = StartCoroutine(FadeTo(1f));
+        }
+    }
+
     private IEnumerator FadeTo(float targetAlpha)
     {
-        // PropertyBlock'u renderer'dan oku
-        _renderer.GetPropertyBlock(_propBlock);
-
-        // Mevcut rengi al veya varsayýlana dön
-        Color currentColor = _renderer.material.HasProperty(_colorPropertyID)
-            ? _propBlock.GetColor(_colorPropertyID)
-            : _originalColor;
-
-        // Renk zaten hedefe yakýnsa rutini çalýþtýrma
-        if (Mathf.Abs(currentColor.a - targetAlpha) < 0.01f)
-            yield break;
-
-        // Hedef alfaya doðru yumuþak geçiþ (Lerp)
-        while (Mathf.Abs(currentColor.a - targetAlpha) > 0.01f)
+        while (Mathf.Abs(_currentAlpha - targetAlpha) > 0.01f)
         {
-            float newAlpha = Mathf.Lerp(currentColor.a, targetAlpha, Time.deltaTime * fadeSpeed);
-            currentColor.a = newAlpha;
-
-            SetAlpha(newAlpha, currentColor);
-
-            yield return null; // Bir sonraki kareye kadar bekle
+            // Mathf.MoveTowards, Lerp'ten daha stabil bir bitiþ saðlar
+            _currentAlpha = Mathf.MoveTowards(_currentAlpha, targetAlpha, Time.deltaTime * fadeSpeed);
+            SetAlpha(_currentAlpha);
+            yield return null;
         }
 
-        // Tam olarak hedef alfayý ayarla
-        SetAlpha(targetAlpha, currentColor);
+        SetAlpha(targetAlpha);
     }
 
-    /// <summary>
-    /// Performanslý þekilde materyalin sadece alfa deðerini ayarlar.
-    /// </summary>
-    private void SetAlpha(float alpha, Color? baseColor = null)
+    private void SetAlpha(float alpha)
     {
-        Color colorToSet = baseColor ?? _originalColor;
-        colorToSet.a = alpha;
+        _currentAlpha = alpha;
 
+        // PropertyBlock kullanarak sadece bu objenin rengini deðiþtiriyoruz
+        // Orijinal materyal bozulmuyor.
         _renderer.GetPropertyBlock(_propBlock);
-        _propBlock.SetColor(_colorPropertyID, colorToSet);
+
+        Color targetColor = _baseColor;
+        targetColor.a = alpha;
+
+        _propBlock.SetColor(_colorID, targetColor);
         _renderer.SetPropertyBlock(_propBlock);
     }
-    #endregion
 }

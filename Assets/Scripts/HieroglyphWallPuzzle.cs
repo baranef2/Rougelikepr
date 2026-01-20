@@ -23,6 +23,7 @@ public class HieroglyphWallPuzzle : MonoBehaviour
     [SerializeField] private float warningDuration = 1.0f;
     [SerializeField] private float fireDuration = 1.5f;
     [SerializeField] private float timeBetweenRounds = 1.0f;
+    [SerializeField] private float wallActivationDelay = 1.0f; 
 
     private bool _isPuzzleActive = false;
     private bool _isPuzzleCompleted = false;
@@ -52,7 +53,7 @@ public class HieroglyphWallPuzzle : MonoBehaviour
     private IEnumerator PuzzleRoutine()
     {
         _isPuzzleActive = true;
-
+        yield return new WaitForSeconds(wallActivationDelay);
         // Giriþi Kilitle
         if (entryFireWall != null) entryFireWall.SetActive(true);
         if (exitFireWall != null) exitFireWall.SetActive(true);
@@ -75,7 +76,7 @@ public class HieroglyphWallPuzzle : MonoBehaviour
             TrapSetup trap1 = availableTraps[index1];
             TrapSetup trap2 = availableTraps[index2];
 
-            
+            yield return new WaitForSeconds(warningDuration);
             if (trap1.decalObject != null) trap1.decalObject.SetActive(true);
             if (trap2.decalObject != null) trap2.decalObject.SetActive(true);
 

@@ -22,6 +22,7 @@ public class PlayerAnimator : MonoBehaviour
     private int _animIDClimbY;
     private int _animIDComboStep;
     private int _animIDWeaponType;
+    private int _animIDDash;
 
     private void Awake()
     {
@@ -51,6 +52,8 @@ public class PlayerAnimator : MonoBehaviour
         _animIDClimbY = Animator.StringToHash("ClimbY");
         _animIDComboStep = Animator.StringToHash("ComboStep");
         _animIDWeaponType = Animator.StringToHash("WeaponType");
+        _animIDDash = Animator.StringToHash("Dash");
+
     }
 
 
@@ -61,6 +64,7 @@ public class PlayerAnimator : MonoBehaviour
         _playerController.OnPlayerAttack += HandlePlayerAttack;
         _playerController.OnPlayerDamage += HandlePlayerDamage;
         _playerController.OnPlayerDeath += HandlePlayerDeath;
+        _playerController.OnPlayerDash += HandlePlayerDash;
     }
 
     private void OnDisable()
@@ -70,6 +74,7 @@ public class PlayerAnimator : MonoBehaviour
         _playerController.OnPlayerAttack -= HandlePlayerAttack;
         _playerController.OnPlayerDamage -= HandlePlayerDamage;
         _playerController.OnPlayerDeath -= HandlePlayerDeath;
+        _playerController.OnPlayerDash -= HandlePlayerDash;
     }
 
     private float _currentClimbX;
@@ -157,5 +162,12 @@ public class PlayerAnimator : MonoBehaviour
 
         
         _animator.SetTrigger(_animIDDeath);
+    }
+
+    private void HandlePlayerDash()
+    {
+        if (_animator == null) return;
+        _animator.ResetTrigger(_animIDDash);
+        _animator.SetTrigger(_animIDDash);
     }
 }

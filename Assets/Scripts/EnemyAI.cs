@@ -1,5 +1,6 @@
 using UnityEngine;
-using UnityEngine.AI; // NavMeshAgent için gerekli
+using UnityEngine.AI;
+using System.Collections;
 
 [System.Serializable]
 public struct LootDrop
@@ -9,32 +10,42 @@ public struct LootDrop
     public float dropChancePercentage;
 }
 
-
 [RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(Health))] 
+[RequireComponent(typeof(Health))]
 [RequireComponent(typeof(Animator))]
 public class EnemyAI : MonoBehaviour
 {
     [Header("Referanslar")]
-    private NavMeshAgent _agent;
-    private Transform _player;
-    private Health _playerHealth; 
-    private Animator _animator;
-    private Health _health;
+    protected NavMeshAgent _agent;
+    protected Transform _player;
+    protected Health _playerHealth;
+    protected Animator _animator;
+    protected Health _health;
 
     [Header("AI Ayarlarý")]
-    [SerializeField] private float detectionRange = 15f; 
-    [SerializeField] private float attackRange = 2f;    
-    [SerializeField] private float attackDamage = 10f;  
-    [SerializeField] private float attackCooldown = 1.5f; 
-    [SerializeField] private float attackPreparationTime = 0.3f;
+    [SerializeField] protected float detectionRange = 15f;
+    [SerializeField] protected float attackRange = 2f;
+    [SerializeField] protected float attackDamage = 10f;
+    [SerializeField] protected float attackCooldown = 1.5f;
+    [SerializeField] protected float attackPreparationTime = 0.3f;
+    [SerializeField] private GameObject hitBloodVFX;
+    [SerializeField] private Vector3 hitVFXOffset = new Vector3(0, 1.0f, 0);
     [SerializeField] private GameObject enemyDeathVFX;
 
+    [Header("Hasar Tepkisi (Slow) Ayarlarý")]
+    [SerializeField] private float slowDuration = 0.5f; 
+    [SerializeField] private float slowedSpeed = 0.5f;  
+    private float _originalSpeed; 
+    private bool _isHit = false;  
+
     private float _lastAttackTime = -999f;
+
     private int _animIDSpeed;
+    private int _animIDDamage;
+
     [SerializeField] private LootDrop[] lootTable;
     [SerializeField] private Vector3 lootSpawnOffset = new Vector3(0, 0.5f, 0);
-    // FSM (Durum Makinesi)
+
     private enum DüþmanDurumu { Bekleme, Takip, Saldýrý }
     private DüþmanDurumu _mevcutDurum;
 
@@ -45,50 +56,50 @@ public class EnemyAI : MonoBehaviour
         _health = GetComponent<Health>();
 
         _animIDSpeed = Animator.StringToHash("Speed");
+        _animIDDamage = Animator.StringToHash("Damage");
 
-        // Oyuncuyu dinamik olarak bul (veya bir manager ile ata)
-        // Bu en basit yöntemdir, daha geliþmiþ sistemler kurabilirsiniz.
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
             _player = playerObj.transform;
             _playerHealth = playerObj.GetComponent<Health>();
-
         }
     }
 
     private void Start()
     {
         _mevcutDurum = DüþmanDurumu.Bekleme;
+
+        
+        if (_agent != null)
+        {
+            _originalSpeed = _agent.speed;
+        }
     }
 
     private void Update()
     {
+        
+
         if (_agent != null && _animator != null)
         {
-            // velocity.magnitude, agent'ýn saniyedeki dünya birimi cinsinden hýzýdýr.
-            // Bu, bizim Animator'de "Speed" (float) parametresi için tam aradýðýmýz þey.
             float currentSpeed = _agent.velocity.magnitude;
             _animator.SetFloat(_animIDSpeed, currentSpeed);
         }
 
-        // OLMASI GEREKEN DOÐRU BLOK:
         if (_player == null || _playerHealth == null)
         {
-           
             _agent.isStopped = true;
             return;
         }
 
-        // Oyuncuyla mesafeyi hesapla
         float distanceToPlayer = Vector3.Distance(transform.position, _player.position);
 
-        // --- Durum Geçiþleri ---
+        
         if (distanceToPlayer <= attackRange)
         {
             if (_mevcutDurum != DüþmanDurumu.Saldýrý)
             {
-               
                 _lastAttackTime = Time.time - attackCooldown + attackPreparationTime;
             }
             _mevcutDurum = DüþmanDurumu.Saldýrý;
@@ -102,7 +113,7 @@ public class EnemyAI : MonoBehaviour
             _mevcutDurum = DüþmanDurumu.Bekleme;
         }
 
-        // --- Durum Davranýþlarý ---
+        
         switch (_mevcutDurum)
         {
             case DüþmanDurumu.Bekleme:
@@ -119,106 +130,121 @@ public class EnemyAI : MonoBehaviour
 
     private void BeklemeDavranýþý()
     {
-        // Navigasyonu durdur
         _agent.isStopped = true;
-
-        // (Opsiyonel) Etrafa bakýnma, idle animasyonu oynatma vb.
     }
 
     private void TakipDavranýþý()
     {
-        // Navigasyonu baþlat
+        
         _agent.isStopped = false;
-        // Hedefi oyuncu olarak ayarla
         _agent.SetDestination(_player.position);
-
-        // (Opsiyonel) Koþma animasyonunu oynat
     }
 
     private void SaldýrýDavranýþý()
     {
-        // Olduðu yerde dur
+       
         _agent.isStopped = true;
 
-        // Düþmanýn yüzünün oyuncuya dönmesini saðla (anýnda)
         Vector3 lookDir = _player.position - transform.position;
-        lookDir.y = 0; // Düþmanýn havaya bakmasýný engelle
+        lookDir.y = 0;
         transform.rotation = Quaternion.LookRotation(lookDir);
 
-        // Saldýrý Cooldown kontrolü
-        if (Time.time > _lastAttackTime + attackCooldown)
+        
+        if (!_isHit && Time.time > _lastAttackTime + attackCooldown)
         {
             PerformAttack();
             _lastAttackTime = Time.time;
         }
     }
 
-    private void PerformAttack()
+    protected virtual void PerformAttack()
     {
-        
-         _animator.SetTrigger("Attack");
+        _animator.SetTrigger("Attack");
+        if (_playerHealth != null) _playerHealth.TakeDamage(attackDamage);
+    }
 
-        Debug.Log("Düþman saldýrdý!");
-
-        // Oyuncunun canýný azalt
-        if (_playerHealth != null)
+    
+    private void HandleDamage(float currentHealthPercent)
+    {
+        if (currentHealthPercent <= 0) return;
+        if (hitBloodVFX != null)
         {
-            _playerHealth.TakeDamage(attackDamage);
+            // Efekti düþmanýn pozisyonunda + biraz yukarýda (offset) oluþtur
+            Vector3 spawnPos = transform.position + hitVFXOffset;
+
+            
+            Quaternion rotation = Quaternion.identity;
+
+            GameObject vfx = Instantiate(hitBloodVFX, spawnPos, rotation);
+
+            // Efekti 2 saniye sonra sahneden sil (Performans için önemli)
+            Destroy(vfx, 2f);
+
+            StartCoroutine(SlowRoutine());
         }
+    }
+
+    private IEnumerator SlowRoutine()
+    {
+        _isHit = true;
+
+        // 1. Animasyonu oynat
+        _animator.SetTrigger(_animIDDamage);
+
+        // 2. Hýzý düþür (Örn: 3.5 -> 0.5)
+        _agent.speed = slowedSpeed;
+
+        // 3. Belirlenen süre kadar bekle (Örn: 0.5 saniye)
+        yield return new WaitForSeconds(slowDuration);
+
+        // 4. Hýzý eski haline getir (Örn: 0.5 -> 3.5)
+        _agent.speed = _originalSpeed;
+
+        _isHit = false;
     }
 
     private void HandleDeath()
     {
         TryDropLoot();
-
-
         if (enemyDeathVFX != null)
         {
             GameObject vfx = Instantiate(enemyDeathVFX, transform.position, Quaternion.identity);
             Destroy(vfx, 2.2f);
         }
-
         _animator.SetTrigger("Death");
         _agent.isStopped = true;
         this.enabled = false;
-        if (GetComponent<Collider>() != null)
-        {
-            GetComponent<Collider>().enabled = false;
-        }
+        if (GetComponent<Collider>() != null) GetComponent<Collider>().enabled = false;
         Destroy(gameObject, 2.9f);
     }
 
     private void TryDropLoot()
     {
         if (lootTable == null || lootTable.Length == 0) return;
-
         foreach (var drop in lootTable)
         {
-            float randomRoll = Random.Range(0f, 100f);
-
-            if (randomRoll <= drop.dropChancePercentage)
+            if (Random.Range(0f, 100f) <= drop.dropChancePercentage)
             {
-                Vector3 spawnPosition = transform.position + lootSpawnOffset;
-                Instantiate(drop.itemPrefab, spawnPosition, Quaternion.identity);
+                Instantiate(drop.itemPrefab, transform.position + lootSpawnOffset, Quaternion.identity);
             }
         }
     }
 
     private void OnEnable()
     {
-        // Kendi can sistemimizin OnDeath event'ine HandleDeath metodunu baðla
         if (_health != null)
         {
             _health.OnDeath.AddListener(HandleDeath);
+            _health.OnTakeDamage.AddListener(HandleDamage);
         }
     }
 
     private void OnDisable()
     {
-        // Obje kapandýðýnda veya yok edildiðinde event baðlantýsýný kes (hafýza sýzýntýsýný önler)
         if (_health != null)
         {
             _health.OnDeath.RemoveListener(HandleDeath);
+            _health.OnTakeDamage.RemoveListener(HandleDamage);
         }
     }
 }

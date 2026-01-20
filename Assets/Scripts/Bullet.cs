@@ -4,7 +4,7 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] private float speed = 30f;
     [SerializeField] private float lifeTime = 5f;
-    //[SerializeField] private float damage = 25f;
+    
     private float _damage;
     [SerializeField] private string enemyTag = "Enemy";
     [SerializeField] private LayerMask wallMask;
@@ -12,7 +12,7 @@ public class Bullet : MonoBehaviour
 
     // --- YENÝ EKLENEN DEÐÝÞKENLER ---
     private TrailRenderer _trail;
-    private bool _isDying = false; // "Ölme" durumunu takip etmek için
+    private bool _isDying = false; 
     private float _trailTime;
     // --- BÝTÝÞ ---
 
@@ -25,7 +25,7 @@ public class Bullet : MonoBehaviour
         _trail = GetComponentInChildren<TrailRenderer>();
         if (_trail != null)
         {
-            _trailTime = _trail.time; // Trail'in ömrünü kaydet
+            _trailTime = _trail.time; 
         }
        
     }
